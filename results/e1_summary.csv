@@ -1,21 +1,21 @@
 scenario,description,mode,queries,complete_pct,partial_pct,failed_pct,parts_answered_pct,parts_correct_pct,recovery_pct,mean_ms,p50_ms,p95_ms,fallback_parts,hedged_parts
-S0_normal,no failure,baseline,48,100.0,0.0,0.0,100.0,100.0,,112.0,115.8,190.9,0,0
-S0_normal,no failure,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,,111.8,115.6,191.0,0,0
-S1_edge_crash,edge not available (process killed),baseline,48,33.3,20.8,45.8,40.6,40.6,0.0,63.8,115.0,117.0,0,0
-S1_edge_crash,edge not available (process killed),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,166.0,166.3,281.7,32,0
-S2_edge_partition,edge available but unreachable,baseline,48,33.3,20.8,45.8,40.6,40.6,0.0,1375.4,2004.6,2007.3,0,0
-S2_edge_partition,edge available but unreachable,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,183.9,165.9,465.5,32,3
-S3_edge_slow,"edge up but slow (+3 s, e.g. throttled Pi)",baseline,48,33.3,20.8,45.8,40.6,40.6,0.0,1375.6,2004.7,2007.7,0,0
-S3_edge_slow,"edge up but slow (+3 s, e.g. throttled Pi)",semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,188.9,165.8,466.8,32,4
-S4_fog_crash,fog not available (process killed),baseline,48,33.3,33.3,33.3,50.0,50.0,0.0,51.1,75.2,77.5,0,0
-S4_fog_crash,fog not available (process killed),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,108.1,76.9,167.3,32,0
-S5_fog_partition,fog available but unreachable,baseline,48,33.3,33.3,33.3,50.0,50.0,0.0,1371.8,2004.6,2082.3,0,0
-S5_fog_partition,fog available but unreachable,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,128.1,76.0,168.6,32,2
-S6_fog_slow,fog up but slow (+3 s),baseline,48,33.3,33.3,33.3,50.0,50.0,0.0,1371.5,2004.9,2080.0,0,0
-S6_fog_slow,fog up but slow (+3 s),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,136.9,77.0,540.9,32,3
-S7_edge_fog_crash,both local tiers down,baseline,48,0.0,0.0,100.0,0.0,0.0,0.0,1.4,1.2,1.9,0,0
-S7_edge_fog_crash,both local tiers down,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,191.9,166.6,331.7,64,0
-S8_cloud_crash,cloud down (only the backup is lost),baseline,48,100.0,0.0,0.0,100.0,100.0,,112.3,115.5,191.3,0,0
-S8_cloud_crash,cloud down (only the backup is lost),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,,111.9,115.5,190.3,0,0
-S9_edge_flapping,edge link goes up/down every 1.5 s,baseline,48,89.6,4.2,6.2,89.1,89.1,81.6,306.3,115.4,2004.0,0,0
-S9_edge_flapping,edge link goes up/down every 1.5 s,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,189.4,166.0,466.2,32,4
+S0_normal,no failure,baseline,48,100.0,0.0,0.0,100.0,100.0,,131.9,121.9,234.9,0,0
+S0_normal,no failure,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,,125.7,115.2,205.8,0,0
+S1_edge_crash,edge not available (process killed),baseline,48,33.3,20.8,45.8,40.6,40.6,0.0,222.5,263.2,284.9,0,0
+S1_edge_crash,edge not available (process killed),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,253.5,251.4,508.5,32,0
+S2_edge_partition,edge available but unreachable,baseline,48,33.3,20.8,45.8,40.6,40.6,0.0,1397.5,2021.0,2038.5,0,0
+S2_edge_partition,edge available but unreachable,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,262.5,262.2,585.3,32,3
+S3_edge_slow,"edge up but slow (+3 s, e.g. throttled Pi)",baseline,48,33.3,20.8,45.8,40.6,40.6,0.0,1395.6,2019.1,2051.5,0,0
+S3_edge_slow,"edge up but slow (+3 s, e.g. throttled Pi)",semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,263.6,249.5,645.8,32,4
+S4_fog_crash,fog not available (process killed),baseline,48,33.3,33.3,33.3,50.0,50.0,0.0,226.2,268.0,373.3,0,0
+S4_fog_crash,fog not available (process killed),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,165.5,117.5,293.2,32,0
+S5_fog_partition,fog available but unreachable,baseline,48,33.3,33.3,33.3,50.0,50.0,0.0,1394.1,2018.4,2128.0,0,0
+S5_fog_partition,fog available but unreachable,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,167.6,121.6,285.1,32,2
+S6_fog_slow,fog up but slow (+3 s),baseline,48,33.3,33.3,33.3,50.0,50.0,0.0,1392.9,2020.0,2110.6,0,0
+S6_fog_slow,fog up but slow (+3 s),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,196.8,113.5,632.7,32,4
+S7_edge_fog_crash,both local tiers down,baseline,48,0.0,0.0,100.0,0.0,0.0,0.0,264.0,265.9,271.6,0,0
+S7_edge_fog_crash,both local tiers down,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,284.1,259.1,494.6,64,0
+S8_cloud_crash,cloud down (only the backup is lost),baseline,48,100.0,0.0,0.0,100.0,100.0,,121.3,115.8,199.8,0,0
+S8_cloud_crash,cloud down (only the backup is lost),semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,,123.3,115.6,216.6,0,0
+S9_edge_flapping,edge link goes up/down every 1.5 s,baseline,48,87.5,2.1,10.4,85.9,85.9,76.3,354.9,115.3,2013.8,0,0
+S9_edge_flapping,edge link goes up/down every 1.5 s,semantic_rescue,48,100.0,0.0,0.0,100.0,100.0,100.0,235.8,210.9,583.2,32,4
