@@ -1,0 +1,6 @@
+sync  0.5s push_on_write=False: stale 2/30, caught up 30/30, 338 req/min, 13050 B/min
+sync  1.0s push_on_write=False: stale 4/30, caught up 30/30, 158 req/min, 6090 B/min
+sync  2.0s push_on_write=False: stale 8/30, caught up 30/30, 68 req/min, 2610 B/min
+sync  4.0s push_on_write=False: stale 17/30, caught up 30/30, 45 req/min, 1770 B/min
+sync  4.0s push_on_write=True : stale 0/30, caught up 30/30, 45 req/min, 1770 B/min
+results written to /home/claude/semantic-rescue/results

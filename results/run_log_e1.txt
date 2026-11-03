@@ -1,0 +1,21 @@
+S0_normal            baseline         complete=100.0% recovery=  n/a% p50=   116 ms p95=   191 ms
+S0_normal            semantic_rescue  complete=100.0% recovery=  n/a% p50=   116 ms p95=   191 ms
+S1_edge_crash        baseline         complete= 33.3% recovery=0.0% p50=   115 ms p95=   117 ms
+S1_edge_crash        semantic_rescue  complete=100.0% recovery=100.0% p50=   166 ms p95=   282 ms
+S2_edge_partition    baseline         complete= 33.3% recovery=0.0% p50=  2005 ms p95=  2007 ms
+S2_edge_partition    semantic_rescue  complete=100.0% recovery=100.0% p50=   166 ms p95=   466 ms
+S3_edge_slow         baseline         complete= 33.3% recovery=0.0% p50=  2005 ms p95=  2008 ms
+S3_edge_slow         semantic_rescue  complete=100.0% recovery=100.0% p50=   166 ms p95=   467 ms
+S4_fog_crash         baseline         complete= 33.3% recovery=0.0% p50=    75 ms p95=    78 ms
+S4_fog_crash         semantic_rescue  complete=100.0% recovery=100.0% p50=    77 ms p95=   167 ms
+S5_fog_partition     baseline         complete= 33.3% recovery=0.0% p50=  2005 ms p95=  2082 ms
+S5_fog_partition     semantic_rescue  complete=100.0% recovery=100.0% p50=    76 ms p95=   169 ms
+S6_fog_slow          baseline         complete= 33.3% recovery=0.0% p50=  2005 ms p95=  2080 ms
+S6_fog_slow          semantic_rescue  complete=100.0% recovery=100.0% p50=    77 ms p95=   541 ms
+S7_edge_fog_crash    baseline         complete=  0.0% recovery=0.0% p50=     1 ms p95=     2 ms
+S7_edge_fog_crash    semantic_rescue  complete=100.0% recovery=100.0% p50=   167 ms p95=   332 ms
+S8_cloud_crash       baseline         complete=100.0% recovery=  n/a% p50=   116 ms p95=   191 ms
+S8_cloud_crash       semantic_rescue  complete=100.0% recovery=  n/a% p50=   116 ms p95=   190 ms
+S9_edge_flapping     baseline         complete= 89.6% recovery=81.6% p50=   115 ms p95=  2004 ms
+S9_edge_flapping     semantic_rescue  complete=100.0% recovery=100.0% p50=   166 ms p95=   466 ms
+results written to /home/claude/semantic-rescue/results

@@ -1,0 +1,12 @@
+{
+  "gate D20":     "Terminal D, upper level: go straight past security, gate D20 is the last gate on the left.",
+  "gate D14":     "Terminal D, upper level: after security turn right, gate D14 is next to the coffee shop.",
+  "room F-285":   "Discovery Park, floor 2, F wing: take the elevator to floor 2, turn right, F-285 is the fourth door on the left.",
+  "room B-112":   "Discovery Park, floor 1, B wing: from the main lobby walk straight, B-112 is on the right after the vending machines.",
+  "restroom":     "Discovery Park, floor 1: from the main lobby, the nearest restroom is 15 meters ahead on the left, past the elevator.",
+  "elevator":     "Discovery Park, floor 1: the elevators are 10 meters ahead of the main lobby on the left.",
+  "main exit":    "Discovery Park, floor 1: the main exit is behind you, through the double glass doors of the main lobby.",
+  "cafeteria":    "Discovery Park, floor 1, C wing: from the main lobby turn left and walk 40 meters, the cafeteria is at the end of the hall.",
+  "pharmacy":     "Terminal D, upper level: the pharmacy is opposite gate D10, next to the newsstand.",
+  "library":      "Discovery Park, floor 3: take the elevator to floor 3, the library entrance faces the elevator."
+}

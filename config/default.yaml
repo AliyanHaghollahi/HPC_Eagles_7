@@ -1,0 +1,44 @@
+# SemanticRescue configuration.
+# Local single-machine setup: every tier runs on 127.0.0.1 and the coordinator
+# reaches each tier through a fault-injection proxy that also emulates link delay.
+# For a real testbed (Pi 5 = edge, laptop = fog, VM = cloud) change the hosts,
+# and set network.use_proxy: false (or keep the proxies to inject faults).
+
+tiers:
+  edge:  {host: 127.0.0.1, port: 8001, compute_ms: 60}   # Raspberry Pi 5: personal store, small model
+  fog:   {host: 127.0.0.1, port: 8002, compute_ms: 90}   # laptop: floor map + camera scene, bigger model
+  cloud: {host: 127.0.0.1, port: 8003, compute_ms: 40}   # backup tier: replicas of both stores
+
+network:
+  use_proxy: true
+  proxy_ports: {edge: 9001, fog: 9002, cloud: 9003}
+  # Emulated one-way delay between the glasses and each tier (ms).
+  link_delay_ms: {edge: 5, fog: 10, cloud: 60}
+
+backend:
+  type: mock            # mock = deterministic answers from the stores (reproducible); ollama = real LLM
+  ollama_url: http://127.0.0.1:11434
+  models: {edge: "llama3.2:1b", fog: "llama3.2:3b", cloud: "llama3.2:3b"}
+
+sync:
+  interval_s: 2.0        # sync window: how often edge/fog exchange changes with the cloud
+  push_on_write: false   # true = push to cloud right after every write (smaller loss window, more traffic)
+
+coordinator:
+  request_timeout_s: 2.0   # max wait for one tier on one request
+  part_deadline_s: 4.0     # max wait for one sub-query, across all backups
+  hedging: true            # if the primary is slow, start the backup in parallel and take the first answer
+  hedge_factor: 4.0        # hedge after hedge_factor x the tier's average latency ...
+  hedge_min_s: 0.25        # ... but never sooner than this
+  hedge_max_s: 1.0         # ... and never later than this
+  health_interval_s: 0.5   # heartbeat period
+  health_timeout_s: 0.3
+  down_after_misses: 2     # missed heartbeats before a tier is marked DOWN
+  breaker_failures: 3      # failed requests in a row before the circuit opens
+  breaker_open_s: 5.0      # how long the circuit stays open before a trial request
+  stale_warn_s: 30         # warn the user if a backup answer is older than this
+
+data:
+  personal: data/personal.json
+  floor_map: data/floor_map.json
+  runtime_dir: runtime

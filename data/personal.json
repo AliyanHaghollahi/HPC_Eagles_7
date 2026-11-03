@@ -1,0 +1,15 @@
+[
+  {"key": "boarding_pass.gate",      "label": "boarding pass gate", "value": "gate D20",                 "aliases": ["my gate", "boarding pass gate"]},
+  {"key": "boarding_pass.flight",    "label": "flight",                     "value": "AA 1432",                  "aliases": ["my flight number"]},
+  {"key": "boarding_pass.seat",      "label": "seat",                       "value": "14C",                      "aliases": ["my seat", "seat number"]},
+  {"key": "boarding_pass.departure", "label": "flight departure time",      "value": "6:45 PM",                  "aliases": ["flight leave", "my flight leave", "departure"]},
+  {"key": "schedule.next_class",     "label": "next class",                 "value": "Cloud Computing at 2:30 PM", "aliases": ["my next class", "my class"]},
+  {"key": "schedule.next_class_room","label": "next class room",    "value": "room F-285",               "aliases": ["where is my class", "where is my next class"]},
+  {"key": "appointment.next",        "label": "next appointment",           "value": "Dentist at 4:00 PM",       "aliases": ["my appointment"]},
+  {"key": "appointment.room",        "label": "appointment room",   "value": "room B-112",               "aliases": ["where is my appointment", "my dentist appointment"]},
+  {"key": "hotel.reservation",       "label": "hotel reservation number",   "value": "HX-55821",                 "aliases": ["my hotel reservation", "reservation number"]},
+  {"key": "diet.allergy",            "label": "allergy",                    "value": "peanuts",                  "aliases": ["allergic", "my allergy"]},
+  {"key": "size.clothing",           "label": "clothing size",              "value": "M",                        "aliases": ["my size", "clothing size"]},
+  {"key": "membership.gym",          "label": "gym membership",             "value": "Gold, ID 77812",           "aliases": ["my gym membership", "membership"]},
+  {"key": "device.position",         "label": "current position",           "value": "Discovery Park, floor 1, main lobby", "aliases": ["where am i", "my position"]}
+]

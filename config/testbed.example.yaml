@@ -1,0 +1,46 @@
+# Example for the real testbed. Copy to config/testbed.yaml and put in your IPs.
+# Start each tier ON ITS OWN DEVICE with --host 0.0.0.0, e.g. on the Pi:
+#   python -m semrescue.tier_service --role edge --config config/testbed.yaml --host 0.0.0.0
+# Then run the coordinator (the "glasses") with:
+#   python -m semrescue.coordinator.service --config config/testbed.yaml
+# To inject a partition on a real link, start a proxy on the coordinator machine:
+#   python -m semrescue.faults.proxy --listen 9001 --target 192.168.1.50:8001 --control 9101
+# and set network.use_proxy: true.
+
+tiers:
+  edge:  {host: 192.168.1.50, port: 8001, compute_ms: 0}   # Raspberry Pi 5
+  fog:   {host: 192.168.1.20, port: 8002, compute_ms: 0}   # laptop
+  cloud: {host: 203.0.113.10, port: 8003, compute_ms: 0}   # cloud VM (or a lab server)
+
+network:
+  use_proxy: false
+  proxy_ports: {edge: 9001, fog: 9002, cloud: 9003}
+  link_delay_ms: {edge: 0, fog: 0, cloud: 0}
+
+backend:
+  type: ollama
+  ollama_url: http://127.0.0.1:11434     # each tier calls the Ollama on its own machine
+  models: {edge: "llama3.2:1b", fog: "gemma3:4b", cloud: "gemma3:12b"}
+
+sync:
+  interval_s: 2.0
+  push_on_write: false
+
+coordinator:
+  request_timeout_s: 8.0     # real LLMs are slower: raise the timeouts
+  part_deadline_s: 15.0
+  hedging: true
+  hedge_factor: 2.0
+  hedge_min_s: 1.0
+  hedge_max_s: 5.0
+  health_interval_s: 1.0
+  health_timeout_s: 0.5
+  down_after_misses: 2
+  breaker_failures: 3
+  breaker_open_s: 10.0
+  stale_warn_s: 60
+
+data:
+  personal: data/personal.json
+  floor_map: data/floor_map.json
+  runtime_dir: runtime

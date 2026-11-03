@@ -1,0 +1,73 @@
+Starting cloud, edge and fog ...
+
+=== Normal operation ===
+ Q: Where is my gate?
+   baseline         complete    205 ms  [personal_lookup->edge, map_lookup->fog]
+                    "Your boarding pass gate is gate D20. Terminal D, upper level: go straight past security, gate D20 is the last gate on the left."
+   semantic_rescue  complete    191 ms  [personal_lookup->edge, map_lookup->fog]
+                    "Your boarding pass gate is gate D20. Terminal D, upper level: go straight past security, gate D20 is the last gate on the left."
+ Q: What does this sign say and when does my flight leave?
+   baseline         complete    116 ms  [scene_read->fog, personal_lookup->edge]
+                    "The text says: AA 1432 Dallas - ON TIME. Your flight departure time is 6:45 PM."
+   semantic_rescue  complete    121 ms  [scene_read->fog, personal_lookup->edge]
+                    "The text says: AA 1432 Dallas - ON TIME. Your flight departure time is 6:45 PM."
+
+=== Edge NOT available (crashed) ===
+ Q: Where is my gate?
+   baseline         failed        2 ms  [personal_lookup->NONE, map_lookup->NONE]
+                    "I can't reach your personal information right now, please try again in a moment. I couldn't answer "where is that gate" because the step before it failed."
+   semantic_rescue  complete    283 ms  [personal_lookup->cloud (backup), map_lookup->fog]
+                    "Your boarding pass gate is gate D20. Terminal D, upper level: go straight past security, gate D20 is the last gate on the left."
+ Q: What does this sign say and when does my flight leave?
+   baseline         partial     122 ms  [scene_read->fog, personal_lookup->NONE]
+                    "The text says: AA 1432 Dallas - ON TIME. I can't reach your personal information right now, please try again in a moment."
+   semantic_rescue  complete    166 ms  [scene_read->fog, personal_lookup->cloud (backup)]
+                    "The text says: AA 1432 Dallas - ON TIME. Your flight departure time is 6:45 PM."
+
+=== Edge available but UNREACHABLE (network partition) ===
+ Q: Where is my gate?
+   baseline         failed     2003 ms  [personal_lookup->NONE, map_lookup->NONE]
+                    "I can't reach your personal information right now, please try again in a moment. I couldn't answer "where is that gate" because the step before it failed."
+   semantic_rescue  complete    282 ms  [personal_lookup->cloud (backup), map_lookup->fog]
+                    "Your boarding pass gate is gate D20. Terminal D, upper level: go straight past security, gate D20 is the last gate on the left."
+ Q: What does this sign say and when does my flight leave?
+   baseline         partial    2003 ms  [scene_read->fog, personal_lookup->NONE]
+                    "The text says: AA 1432 Dallas - ON TIME. I can't reach your personal information right now, please try again in a moment."
+   semantic_rescue  complete    168 ms  [scene_read->fog, personal_lookup->cloud (backup)]
+                    "The text says: AA 1432 Dallas - ON TIME. Your flight departure time is 6:45 PM."
+
+=== Fog NOT available (crashed) ===
+ Q: Where is my gate?
+   baseline         partial      77 ms  [personal_lookup->edge, map_lookup->NONE]
+                    "Your boarding pass gate is gate D20. I can't reach the service for "where is that gate" right now."
+   semantic_rescue  complete    149 ms  [personal_lookup->edge, map_lookup->edge (backup)]
+                    "Your boarding pass gate is gate D20. Terminal D, upper level: go straight past security, gate D20 is the last gate on the left."
+ Q: What does this sign say and when does my flight leave?
+   baseline         partial      83 ms  [scene_read->NONE, personal_lookup->edge]
+                    "I can't reach the service for "what does this sign say" right now. Your flight departure time is 6:45 PM."
+   semantic_rescue  complete    167 ms  [scene_read->cloud (backup), personal_lookup->edge]
+                    "The text says: AA 1432 Dallas - ON TIME. Your flight departure time is 6:45 PM."
+
+=== Fog available but UNREACHABLE (network partition) ===
+ Q: Where is my gate?
+   baseline         partial    2083 ms  [personal_lookup->edge, map_lookup->NONE]
+                    "Your boarding pass gate is gate D20. I can't reach the service for "where is that gate" right now."
+   semantic_rescue  complete    150 ms  [personal_lookup->edge, map_lookup->edge (backup)]
+                    "Your boarding pass gate is gate D20. Terminal D, upper level: go straight past security, gate D20 is the last gate on the left."
+ Q: What does this sign say and when does my flight leave?
+   baseline         partial    2003 ms  [scene_read->NONE, personal_lookup->edge]
+                    "I can't reach the service for "what does this sign say" right now. Your flight departure time is 6:45 PM."
+   semantic_rescue  complete    167 ms  [scene_read->cloud (backup), personal_lookup->edge]
+                    "The text says: AA 1432 Dallas - ON TIME. Your flight departure time is 6:45 PM."
+
+=== Edge and fog both down ===
+ Q: Where is my gate?
+   baseline         failed        2 ms  [personal_lookup->NONE, map_lookup->NONE]
+                    "I can't reach your personal information right now, please try again in a moment. I couldn't answer "where is that gate" because the step before it failed."
+   semantic_rescue  complete    329 ms  [personal_lookup->cloud (backup), map_lookup->cloud (backup)]
+                    "Your boarding pass gate is gate D20. Terminal D, upper level: go straight past security, gate D20 is the last gate on the left."
+ Q: What does this sign say and when does my flight leave?
+   baseline         failed        3 ms  [scene_read->NONE, personal_lookup->NONE]
+                    "I can't reach the service for "what does this sign say" right now. I can't reach your personal information right now, please try again in a moment."
+   semantic_rescue  complete    166 ms  [scene_read->cloud (backup), personal_lookup->cloud (backup)]
+                    "The text says: AA 1432 Dallas - ON TIME. Your flight departure time is 6:45 PM."
