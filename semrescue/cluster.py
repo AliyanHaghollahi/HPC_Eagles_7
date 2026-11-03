@@ -32,6 +32,7 @@ class LocalCluster:
         self.dir.mkdir(parents=True, exist_ok=True)
         self.quiet = quiet
         self.procs: dict[str, subprocess.Popen] = {}
+        self._db_gen: dict[str, int] = {}
         self.proxies: dict[str, FaultProxy] = {}
         self.cfg_path = self.dir / "cluster_config.yaml"
         with open(self.cfg_path, "w", encoding="utf-8") as f:
@@ -66,7 +67,8 @@ class LocalCluster:
         await self.stop()
 
     def _db(self, tier: str) -> Path:
-        return self.dir / f"{tier}.db"
+        gen = self._db_gen.get(tier, 0)
+        return self.dir / (f"{tier}.db" if gen == 0 else f"{tier}_{gen}.db")
 
     def _spawn(self, tier: str, seed: bool = True) -> None:
         cmd = [sys.executable, "-m", "semrescue.tier_service", "--role", tier,
@@ -104,10 +106,16 @@ class LocalCluster:
     async def restart(self, tier: str, wipe: bool = False) -> None:
         self._kill(tier)
         if wipe:
+            # Simulate disk loss: start on a brand-new, empty database file. (On Windows the
+            # killed process can keep the old file locked for a moment, so we do not rely on
+            # deleting it; old files are removed best-effort.)
+            old = self._db(tier)
+            self._db_gen[tier] = self._db_gen.get(tier, 0) + 1
             for suffix in ("", "-wal", "-shm"):
-                f = Path(str(self._db(tier)) + suffix)
-                if f.exists():
-                    f.unlink()
+                try:
+                    Path(str(old) + suffix).unlink(missing_ok=True)
+                except OSError:
+                    pass
         self._spawn(tier, seed=not wipe)
         await self.wait_healthy(tier, need_sync=tier != "cloud")
 

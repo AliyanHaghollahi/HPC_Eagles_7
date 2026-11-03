@@ -27,6 +27,7 @@ class FaultProxy:
         self.listen_host, self.listen_port = listen_host, listen_port
         self.target_host, self.target_port = target_host, target_port
         self.delay_s = delay_ms / 1000.0
+        self.connect_timeout_s = 0.25  # target is a local/LAN tier: a healthy one connects in a few ms
         self.mode = "pass"
         self._server: asyncio.base_events.Server | None = None
         self._writers: set[asyncio.StreamWriter] = set()
@@ -57,8 +58,11 @@ class FaultProxy:
             return
         self._writers.add(c_writer)
         try:
-            t_reader, t_writer = await asyncio.open_connection(self.target_host, self.target_port)
-        except OSError:
+            # Short connect timeout: on Windows a connection to a closed port is retried for
+            # ~2 s before it is refused, which would make a crash look like a partition.
+            t_reader, t_writer = await asyncio.wait_for(
+                asyncio.open_connection(self.target_host, self.target_port), timeout=self.connect_timeout_s)
+        except (OSError, asyncio.TimeoutError):
             # target process is down -> behave like the host refused the connection
             self._writers.discard(c_writer)
             c_writer.close()
