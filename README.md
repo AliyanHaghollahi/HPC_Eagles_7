@@ -156,3 +156,7 @@ model from the semantic routing project there and start the coordinator with `--
 
 Tapajit Chandra Paul, Aliyeh Haghollahi - HPC Eagles, Department of Computer Science and
 Engineering, University of North Texas.
+
+## Trello Board
+
+https://trello.com/b/PzmFPhiB/hpceagles7-%F0%9F%9A%80
