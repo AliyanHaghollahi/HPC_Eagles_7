@@ -3,6 +3,7 @@ import asyncio
 
 from semrescue.coordinator.fusion import fuse
 from semrescue.coordinator.health import CLOSED, HALF_OPEN, OPEN, CircuitBreaker
+from semrescue.coordinator.coordinator import Coordinator
 from semrescue.coordinator.policy import FALLBACK_CHAINS, PERSONAL_OPS, WRITE_CHAINS, chain_for
 from semrescue.coordinator.router import KeywordRouter
 from semrescue.store import Store
@@ -70,3 +71,28 @@ def test_keyword_router():
     parts = asyncio.run(r.route("What does this sign say and what is my seat number?"))
     assert [p["op"] for p in parts] == ["scene_read", "personal_lookup"]
     assert parts[1]["arg"] == "boarding_pass.seat"
+
+
+def test_hedge_cancellation_does_not_count_as_tier_failure():
+    cfg = {
+        "coordinator": {
+            "part_deadline_s": 1.0, "hedging": True, "hedge_factor": 1.0,
+            "hedge_min_s": 0.01, "hedge_max_s": 0.01,
+            "breaker_failures": 3, "breaker_open_s": 5.0,
+        }
+    }
+    co = Coordinator(cfg, router=None, urls={"fog": "", "cloud": ""})
+
+    async def fake_call(tier, payload):
+        delay = 0.1 if tier == "fog" else 0.001
+        await asyncio.sleep(delay)
+        return {"outcome": "ok", "latency_s": delay,
+                "data": {"answer": tier, "value": tier}}
+
+    co._call = fake_call
+    part = {"id": "p1", "op": "scene_read", "arg": "", "text": "read it"}
+    result = asyncio.run(co._run_part(part, None))
+
+    assert result["tier"] == "cloud" and result["hedged"]
+    assert co.health.tiers["fog"].breaker.failures == 0
+    assert any(a["outcome"] == "cancelled_slow" for a in result["attempts"])

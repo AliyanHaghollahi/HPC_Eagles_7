@@ -139,10 +139,12 @@ class Coordinator:
                     out = task.result()
                     attempts.append({"tier": tier, "outcome": out["outcome"], "latency_s": round(out["latency_s"], 4)})
                     if out["outcome"] in ("ok", "not_found"):
-                        for other, otier in pending.items():  # the losers of a hedge were too slow
+                        losers = list(pending.items())
+                        for other, otier in losers:  # the losers of a hedge were slower, not failed
                             other.cancel()
                             attempts.append({"tier": otier, "outcome": "cancelled_slow", "latency_s": None})
-                            self._record(otier, False)
+                        if losers:
+                            await asyncio.gather(*(task for task, _ in losers), return_exceptions=True)
                         pending.clear()
                         res = self._result(part, out["outcome"], tier=tier, data=out.get("data"))
                         res.update(latency_s=time.perf_counter() - t0, attempts=attempts, hedged=hedged,
@@ -151,8 +153,11 @@ class Coordinator:
                 if not pending and idx < len(candidates):  # failover
                     launch()
         finally:
-            for t in pending:
+            unfinished = list(pending)
+            for t in unfinished:
                 t.cancel()
+            if unfinished:
+                await asyncio.gather(*unfinished, return_exceptions=True)
         res = self._result(part, "failed")
         res.update(latency_s=time.perf_counter() - t0, attempts=attempts, hedged=hedged, fallback=False)
         return res
