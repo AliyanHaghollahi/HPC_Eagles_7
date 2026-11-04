@@ -2,7 +2,7 @@
 import asyncio
 
 from semrescue.coordinator.fusion import fuse
-from semrescue.coordinator.health import CLOSED, HALF_OPEN, OPEN, CircuitBreaker
+from semrescue.coordinator.health import CLOSED, DOWN, HALF_OPEN, OPEN, CircuitBreaker
 from semrescue.coordinator.coordinator import Coordinator
 from semrescue.coordinator.policy import FALLBACK_CHAINS, PERSONAL_OPS, WRITE_CHAINS, chain_for
 from semrescue.coordinator.router import KeywordRouter
@@ -96,3 +96,18 @@ def test_hedge_cancellation_does_not_count_as_tier_failure():
     assert result["tier"] == "cloud" and result["hedged"]
     assert co.health.tiers["fog"].breaker.failures == 0
     assert any(a["outcome"] == "cancelled_slow" for a in result["attempts"])
+
+
+def test_open_circuit_is_skipped_but_heartbeat_down_tier_is_last_resort():
+    cfg = {"coordinator": {"breaker_failures": 2, "breaker_open_s": 30.0}}
+    co = Coordinator(cfg, router=None, urls={"edge": "", "cloud": ""})
+    edge = co.health.tiers["edge"]
+
+    edge.breaker.record_failure()
+    edge.breaker.record_failure()
+    assert edge.breaker.state == OPEN
+    assert co._order(["edge", "cloud"]) == ["cloud"]
+
+    edge.breaker.record_success()
+    edge.set_status(DOWN)
+    assert co._order(["edge", "cloud"]) == ["cloud", "edge"]

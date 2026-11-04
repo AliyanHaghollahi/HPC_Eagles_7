@@ -23,7 +23,7 @@ import httpx
 
 from ..config import TIERS, tier_client_url
 from .fusion import fuse
-from .health import HealthMonitor
+from .health import HealthMonitor, UP
 from .policy import chain_for, primary_tier, write_chain_for
 
 
@@ -109,6 +109,10 @@ class Coordinator:
         t0 = time.perf_counter()
         deadline = t0 + self.ccfg["part_deadline_s"]
         candidates = self._order(chain_for(part["op"], self.fault_tolerant))
+        if not candidates:
+            res = self._result(part, "failed")
+            res["latency_s"] = time.perf_counter() - t0
+            return res
         payload = {"op": part["op"], "arg": part["arg"], "text": part.get("text", ""), "scene": scene}
         attempts: list[dict] = []
         pending: dict[asyncio.Task, str] = {}
@@ -184,11 +188,16 @@ class Coordinator:
 
     # ------------------------------------------------------------------ helpers
     def _order(self, chain: list[str]) -> list[str]:
-        """Healthy tiers first (in policy order), suspected-dead ones last as a last resort."""
+        """Prefer healthy tiers, retain heartbeat-down tiers, and skip open circuits."""
         if not self.fault_tolerant:
             return chain
-        healthy = [t for t in chain if self.health.tiers[t].available]
-        return healthy + [t for t in chain if t not in healthy]
+        healthy, heartbeat_down = [], []
+        for tier in chain:
+            health = self.health.tiers[tier]
+            if not health.breaker.allow():
+                continue
+            (healthy if health.status == UP else heartbeat_down).append(tier)
+        return healthy + heartbeat_down
 
     def _hedge_delay(self, tier: str) -> float:
         c = self.ccfg
