@@ -24,7 +24,11 @@ import httpx
 from ..config import TIERS, tier_client_url
 from .fusion import fuse
 from .health import HealthMonitor, UP
-from .policy import chain_for, primary_tier, write_chain_for
+from .policy import FALLBACK_CHAINS, chain_for, primary_tier, write_chain_for
+
+
+class InvalidPlanError(ValueError):
+    """The semantic router returned a plan the coordinator cannot execute."""
 
 
 class Coordinator:
@@ -61,6 +65,7 @@ class Coordinator:
     async def ask(self, query: str, scene: dict | None = None, parts: list[dict] | None = None) -> dict:
         t0 = time.perf_counter()
         parts = parts if parts is not None else await self.router.route(query)
+        self._validate_parts(parts)
         results = await self._run_graph(parts, scene)
         ordered = [results[p["id"]] for p in parts]
         fused = fuse(ordered, self.ccfg["stale_warn_s"])
@@ -82,6 +87,45 @@ class Coordinator:
         return self.health.snapshot()
 
     # ------------------------------------------------------------------ graph
+    @staticmethod
+    def _validate_parts(parts: list[dict]) -> None:
+        if not isinstance(parts, list) or not parts:
+            raise InvalidPlanError("routing plan must be a non-empty list")
+
+        seen: set[str] = set()
+        for index, part in enumerate(parts, start=1):
+            if not isinstance(part, dict):
+                raise InvalidPlanError(f"part {index} must be an object")
+
+            part_id = part.get("id")
+            if not isinstance(part_id, str) or not part_id:
+                raise InvalidPlanError(f"part {index} has no valid id")
+            if part_id in seen:
+                raise InvalidPlanError(f"duplicate part id: {part_id}")
+
+            op = part.get("op")
+            if op not in FALLBACK_CHAINS:
+                raise InvalidPlanError(f"part {part_id} has unsupported operation: {op}")
+            if "arg" not in part or not isinstance(part["arg"], str):
+                raise InvalidPlanError(f"part {part_id} must have a string arg")
+
+            dependencies = part.get("depends_on") or []
+            if not isinstance(dependencies, list) or not all(isinstance(d, str) for d in dependencies):
+                raise InvalidPlanError(f"part {part_id} has invalid dependencies")
+            unavailable = [d for d in dependencies if d not in seen]
+            if unavailable:
+                names = ", ".join(unavailable)
+                raise InvalidPlanError(
+                    f"part {part_id} depends on unknown or later part(s): {names}"
+                )
+
+            arg = part["arg"]
+            if arg.startswith("$") and arg[1:] not in dependencies:
+                raise InvalidPlanError(
+                    f"part {part_id} references {arg} without declaring it as a dependency"
+                )
+            seen.add(part_id)
+
     async def _run_graph(self, parts: list[dict], scene: dict | None) -> dict[str, dict]:
         done: dict[str, dict] = {}
         tasks: dict[str, asyncio.Task] = {}

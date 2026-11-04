@@ -9,11 +9,11 @@ from __future__ import annotations
 import argparse
 import contextlib
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from ..config import load_config
-from .coordinator import Coordinator
+from .coordinator import Coordinator, InvalidPlanError
 from .router import GoldRouter, KeywordRouter, SLMRouter
 
 
@@ -45,7 +45,10 @@ def create_app(cfg: dict, router) -> FastAPI:
 
     @app.post("/ask")
     async def ask(req: Ask):
-        return await coords[not req.baseline].ask(req.query, req.scene)
+        try:
+            return await coords[not req.baseline].ask(req.query, req.scene)
+        except InvalidPlanError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     @app.post("/write")
     async def write(req: Write):

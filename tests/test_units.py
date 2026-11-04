@@ -3,7 +3,7 @@ import asyncio
 
 from semrescue.coordinator.fusion import fuse
 from semrescue.coordinator.health import CLOSED, DOWN, HALF_OPEN, OPEN, CircuitBreaker
-from semrescue.coordinator.coordinator import Coordinator
+from semrescue.coordinator.coordinator import Coordinator, InvalidPlanError
 from semrescue.coordinator.policy import FALLBACK_CHAINS, PERSONAL_OPS, WRITE_CHAINS, chain_for
 from semrescue.coordinator.router import KeywordRouter
 from semrescue.store import Store
@@ -111,3 +111,27 @@ def test_open_circuit_is_skipped_but_heartbeat_down_tier_is_last_resort():
     edge.breaker.record_success()
     edge.set_status(DOWN)
     assert co._order(["edge", "cloud"]) == ["cloud", "edge"]
+
+
+def test_route_plan_validation_reports_model_errors_clearly():
+    valid = [
+        {"id": "p1", "op": "personal_lookup", "arg": "boarding_pass.gate"},
+        {"id": "p2", "op": "map_lookup", "arg": "$p1", "depends_on": ["p1"]},
+    ]
+    Coordinator._validate_parts(valid)
+
+    invalid_plans = [
+        ([valid[0], dict(valid[0])], "duplicate part id"),
+        ([{"id": "p1", "op": "invent_answer", "arg": ""}], "unsupported operation"),
+        ([{"id": "p2", "op": "map_lookup", "arg": "$p1", "depends_on": ["p1"]}],
+         "unknown or later"),
+        ([{"id": "p1", "op": "map_lookup", "arg": "$missing"}],
+         "without declaring it"),
+    ]
+    for parts, expected in invalid_plans:
+        try:
+            Coordinator._validate_parts(parts)
+        except InvalidPlanError as exc:
+            assert expected in str(exc)
+        else:
+            raise AssertionError(f"plan should have been rejected: {parts}")
